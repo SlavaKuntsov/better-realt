@@ -1,4 +1,4 @@
-namespace Parser.Models;
+namespace Flatly.API.Models;
 
 public sealed record RealEstateListing(
     string Title,

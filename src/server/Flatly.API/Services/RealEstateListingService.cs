@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
-using Parser.Models;
+using Flatly.API.Models;
 
-namespace Parser.Services;
+namespace Flatly.API.Services;
 
 public sealed class RealEstateListingService(HttpClient httpClient, ILogger<RealEstateListingService> logger)
     : IRealEstateListingService

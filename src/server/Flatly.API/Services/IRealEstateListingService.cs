@@ -1,6 +1,6 @@
-using Parser.Models;
+using Flatly.API.Models;
 
-namespace Parser.Services;
+namespace Flatly.API.Services;
 
 public interface IRealEstateListingService
 {

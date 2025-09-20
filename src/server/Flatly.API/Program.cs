@@ -1,5 +1,5 @@
-using Parser.Models;
-using Parser.Services;
+using Flatly.API.Models;
+using Flatly.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
