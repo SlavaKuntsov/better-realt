@@ -1,32 +1,67 @@
-using Flatly.API.Models;
-using Flatly.API.Services;
+using Common.Common;
+using Common.Exceptions;
+using Common.Host;
+using Common.OpenApi;
+using DotNetEnv;
+using Flatly.Core.Dtos;
+using Flatly.Core.Extensions;
+using Flatly.Persistance.Extensions;
+using Serilog;
+
+Env.Load("./../../.env");
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
 
-builder.Services.AddOpenApi();
+builder.Host.UseSerilog((context, config) =>
+	config.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext());
 
-builder.Services.AddHttpClient<IRealEstateListingService, RealEstateListingService>(client =>
-{
-    client.DefaultRequestHeaders.UserAgent.ParseAdd(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36");
-    client.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-});
+services.Configure<ParsingOptions>(configuration.GetSection(nameof(ParsingOptions)));
+
+services
+	.AddCommon()
+	.AddExceptions()
+	// .AddAuthorization(configuration)
+	// .AddMapper()
+	.AddSwagger()
+	.AddOpenApi();
+
+services
+	.AddCore()
+	.AddPersistence(configuration);
 
 var app = builder.Build();
 
+app.ApplyMigrations();
+
+app.UseSwagger();
+app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API v1"); });
+
 if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
+	app.MapOpenApi();
+
+// app.UseCookiePolicy(
+// 	new CookiePolicyOptions
+// 	{
+// 		MinimumSameSitePolicy = SameSiteMode.None,
+// 		HttpOnly = HttpOnlyPolicy.Always,
+// 		Secure = CookieSecurePolicy.Always
+// 	});
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/listings", async (IRealEstateListingService service, CancellationToken cancellationToken) =>
-    {
-        var listings = await service.GetListingsAsync(cancellationToken);
-        return Results.Ok(listings);
-    })
-    .WithName("GetRealEstateListings")
-    .WithDescription("Возвращает список двухкомнатных квартир с realt.by.")
-    .Produces<IReadOnlyList<RealEstateListing>>()
-    .WithOpenApi();
+// app.UseForwardedHeaders(
+// 	new ForwardedHeadersOptions
+// 	{
+// 		ForwardedHeaders = ForwardedHeaders.All
+// 	});
+// app.UseCors();
+
+// app.UseAuthentication();
+// app.UseAuthorization();
+app.MapControllers();
+
+app.AddPortsLogging();
 
 app.Run();
