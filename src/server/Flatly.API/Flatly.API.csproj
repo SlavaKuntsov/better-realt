@@ -24,10 +24,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Flatly.Core\Flatly.Core.csproj" />
-      <ProjectReference Include="..\Flatly.Persistance\Flatly.Persistance.csproj" />
-      <ProjectReference Include="..\SharedKernel\Common\Common.csproj" />
-      <ProjectReference Include="..\SharedKernel\Utilities\Utilities.csproj" />
+        <ProjectReference Include="..\Flatly.Core\Flatly.Core.csproj"/>
+        <ProjectReference Include="..\Flatly.Persistance\Flatly.Persistance.csproj"/>
+        <ProjectReference Include="..\SharedKernel\Common\Common.csproj"/>
+        <ProjectReference Include="..\SharedKernel\Utilities\Utilities.csproj"/>
     </ItemGroup>
 
 </Project>
