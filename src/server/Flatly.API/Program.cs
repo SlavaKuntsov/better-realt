@@ -10,6 +10,15 @@ using Serilog;
 
 Env.Load("./../../.env");
 
+var apiKey = Environment.GetEnvironmentVariable("GROQ_API_KEY");
+if (string.IsNullOrWhiteSpace(apiKey))
+{
+	Console.Error.WriteLine("GROQ_API_KEY не задан. export/set переменную окружения и перезапусти процесс.");
+	throw new Exception("GROQ_API_KEY не задан. export/set переменную окружения и перезапусти процесс.");
+}
+
+Console.WriteLine(apiKey);
+
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
