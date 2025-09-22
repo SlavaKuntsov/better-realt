@@ -21,6 +21,6 @@ public class ParserController(IMediator mediator) : ControllerBase
 	public async Task<IActionResult> InitialParsing(CancellationToken ct = default)
 	{
 		var listings = await mediator.Send(new ParsingCommand(), ct);
-		return Ok(new ApiResponse<IList<RealEstateModel>>(StatusCodes.Status200OK, listings, listings.Count));
+		return Ok(new ApiResponse<IList<int?>>(listings));
 	}
 }

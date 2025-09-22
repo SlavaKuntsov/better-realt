@@ -3,7 +3,6 @@ using Common.Exceptions;
 using Common.Host;
 using Common.OpenApi;
 using DotNetEnv;
-using Flatly.Core.Dtos;
 using Flatly.Core.Extensions;
 using Flatly.Persistance.Extensions;
 using Serilog;
@@ -17,8 +16,6 @@ var configuration = builder.Configuration;
 builder.Host.UseSerilog((context, config) =>
 	config.ReadFrom.Configuration(context.Configuration).Enrich.FromLogContext());
 
-services.Configure<ParsingOptions>(configuration.GetSection(nameof(ParsingOptions)));
-
 services
 	.AddCommon()
 	.AddExceptions()
@@ -28,7 +25,7 @@ services
 	.AddOpenApi();
 
 services
-	.AddCore()
+	.AddCore(configuration)
 	.AddPersistence(configuration);
 
 var app = builder.Build();

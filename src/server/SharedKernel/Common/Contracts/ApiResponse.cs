@@ -1,8 +1,11 @@
-﻿namespace Common.Contracts;
+﻿using System.Collections;
+
+namespace Common.Contracts;
 
 public record ApiResponse<T>(
-	int StatusCode,
 	T? Data,
-	int? Total = null,
-	string? Message = null
-);
+	string? Message = null)
+{
+	public int? Total =>
+		Data is IEnumerable e ? e.Cast<object>().Count() : null;
+}
