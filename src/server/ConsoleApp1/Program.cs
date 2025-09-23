@@ -23,7 +23,7 @@ if (string.IsNullOrWhiteSpace(apiKey))
 
 Console.WriteLine(apiKey);
 
-var model = Environment.GetEnvironmentVariable("GROQ_MODEL") ?? "llama-3.1-8b-instant";
+var model = "llama-3.1-8b-instant";
 
 using var http = new HttpClient();
 http.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
