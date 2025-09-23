@@ -30,9 +30,7 @@ services
 	.AddExceptions()
 	// .AddAuthorization(configuration)
 	// .AddMapper()
-	.AddSwagger()
-	.AddOpenApi();
-
+	.AddSwagger();
 services
 	.AddCore(configuration)
 	.AddPersistence(configuration);
@@ -43,9 +41,6 @@ app.ApplyMigrations();
 
 app.UseSwagger();
 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API v1"); });
-
-if (app.Environment.IsDevelopment())
-	app.MapOpenApi();
 
 // app.UseCookiePolicy(
 // 	new CookiePolicyOptions
