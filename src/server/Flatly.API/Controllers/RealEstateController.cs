@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Flatly.API.Controllers;
 
-/// <inheritdoc />
 [ApiController]
 [Route("api/v{version:apiVersion}/real-estate")]
 [ApiVersion("1.0")]

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Common.Common;
 using Common.Exceptions;
 using Common.Host;
@@ -5,6 +6,8 @@ using Common.OpenApi;
 using DotNetEnv;
 using Flatly.Core.Extensions;
 using Flatly.Persistance.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 Env.Load("./../../.env");
@@ -21,7 +24,21 @@ services
 	.AddExceptions()
 	// .AddAuthorization(configuration)
 	// .AddMapper()
-	.AddSwagger();
+	// .AddSwagger()
+	.AddSwaggerWithAuth(configuration);
+
+services.AddAuthorization();
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(o =>
+	{
+		o.RequireHttpsMetadata = false;
+		o.Audience = configuration["Authorization:Audience"];
+		o.MetadataAddress = configuration["Authorization:MetadataAddress"]!;
+		o.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidIssuer = configuration["Authorization:ValidateIssuer"]
+		};
+	});
 
 services
 	.AddCore(configuration)
@@ -33,6 +50,11 @@ app.ApplyMigrations();
 
 app.UseSwagger();
 app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API v1"); });
+
+// app.MapGet("users/me", (ClaimsPrincipal claimsPrincipal) =>
+// {
+// 	return claimsPrincipal.Claims.ToDictionary(c => c.Type, c => c.Value);
+// }).RequireAuthorization();
 
 // app.UseCookiePolicy(
 // 	new CookiePolicyOptions
@@ -51,8 +73,8 @@ app.UseHttpsRedirection();
 // 	});
 // app.UseCors();
 
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.AddPortsLogging();
