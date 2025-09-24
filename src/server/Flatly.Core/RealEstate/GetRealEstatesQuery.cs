@@ -1,8 +1,11 @@
-﻿using Flatly.Core.Abstractions.Data;
+﻿using Common.Contracts;
+using Flatly.Core.Abstractions.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Flatly.Core.RealEstate;
+
+using Response = ApiResponse<IList<RealEstateModel>>;
 
 public sealed record GetRealEstatesQuery(
 	byte Limit,
@@ -11,14 +14,14 @@ public sealed record GetRealEstatesQuery(
 	decimal? MinPriceUsd = null,
 	decimal? MaxPriceUsd = null,
 	string? SortBy = null,
-	bool Descending = false) : IRequest<IList<RealEstateModel>>;
+	bool Descending = false) : IRequest<Response>;
 
 public sealed class GetRealEstatesQueryHandler(IApplicationDbContext dbContext)
-		: IRequestHandler<GetRealEstatesQuery, IList<RealEstateModel>>
+	: IRequestHandler<GetRealEstatesQuery, Response>
 {
-	public async Task<IList<RealEstateModel>> Handle(GetRealEstatesQuery request, CancellationToken ct)
+	public async Task<Response> Handle(GetRealEstatesQuery request, CancellationToken ct)
 	{
-		var query = dbContext.RealEstates .AsQueryable();
+		var query = dbContext.RealEstates.AsQueryable();
 
 		if (request.Code.HasValue)
 			query = query.Where(p => p.Code == request.Code.Value);
@@ -35,15 +38,25 @@ public sealed class GetRealEstatesQueryHandler(IApplicationDbContext dbContext)
 			{
 				"code" => request.Descending ? query.OrderByDescending(p => p.Code) : query.OrderBy(p => p.Code),
 				"title" => request.Descending ? query.OrderByDescending(p => p.Title) : query.OrderBy(p => p.Title),
-				"priceUsd" => request.Descending ? query.OrderByDescending(p => p.PriceUsd) : query.OrderBy(p => p.PriceUsd),
-				"area" => request.Descending ? query.OrderByDescending(p => p.AreaTotal) : query.OrderBy(p => p.AreaTotal),
+				"priceUsd" => request.Descending
+					? query.OrderByDescending(p => p.PriceUsd)
+					: query.OrderBy(p => p.PriceUsd),
+				"area" => request.Descending
+					? query.OrderByDescending(p => p.AreaTotal)
+					: query.OrderBy(p => p.AreaTotal),
 				_ => query
 			};
 		}
-		
+		else
+			query = query.OrderBy(p => p.Code);
+
+		var total = await query.CountAsync(ct);
+
 		query = query.Skip((request.Offset - 1) * request.Limit)
 			.Take(request.Limit);
 
-		return await query.ToListAsync(ct);
+		var items = await query.ToListAsync(ct);
+
+		return new Response(items, request.Limit, request.Offset, null, total);
 	}
 }

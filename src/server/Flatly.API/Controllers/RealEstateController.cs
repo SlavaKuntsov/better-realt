@@ -34,7 +34,7 @@ public class RealEstateController(IMediator mediator) : ControllerBase
 		[FromQuery] byte offset = 1,
 		CancellationToken ct = default)
 	{
-		var realEstates = await mediator.Send(new GetRealEstatesQuery(
+		var response = await mediator.Send(new GetRealEstatesQuery(
 			limit,
 			offset,
 			code,
@@ -42,14 +42,14 @@ public class RealEstateController(IMediator mediator) : ControllerBase
 			maxPriceUsd,
 			sortBy,
 			descending), ct);
-		return Ok(new ApiResponse<IList<RealEstateModel>>(realEstates, limit, offset));
+		return Ok(response);
 	}
 
 	/// <summary>
 	///     Возвращает и сохраняет в бд список квартир с realt.by
 	/// </summary>
 	/// <param name="ct"></param>
-	/// <returns>Список кодов всей недвидимости.</returns>
+	/// <returns>Список кодов всей недвижимости.</returns>
 	[HttpGet("initial-parsing")]
 	public async Task<IActionResult> InitialParsing(CancellationToken ct = default)
 	{
